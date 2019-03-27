@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+function saveStuff() {
+    sessionStorage.setItem('sessionKey', 'sessionValue');
+    localStorage.setItem('localKey', 'localValue');
+}
+localStorage.getItem('localKey');
+sessionStorage.getItem('sessionKey');
+</script>
+</head>
+<body>
+<button type="button" onclick="saveStuff()">Save</button>
+</body>
+</html>

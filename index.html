@@ -1,83 +1,203 @@
+<!-- todo link dod kalkulatora i sources , linei przedzielajace nierowno -->
 <!DOCTYPE html>
 <html>
-<title>W3.CSS Template</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Small ideas incubator - Kjaku</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Raleway"
+  />
 
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-body,h1 {font-family: "Raleway", Arial, sans-serif}
-h1 {letter-spacing: 6px}
-.w3-row-padding img {margin-bottom: 12px}
-</style>
-<body>
-
-<!-- Header -->
-<div class=" w3-light-grey w3-center w3-opacity" >
-
-  <h3 class="w3-bar-item w3-left">Shitty code</h3>
-  <a href="#" class="w3-bar-item w3-button">Home</a>
-  <a href="#" class="w3-bar-item w3-button w3-light-grey">About me</a>
-
-
-</div>
-<!-- !PAGE CONTENT! -->
-<div class="w3-content w3-padding-64" style="max-width:600px " >
-
- <div class="w3-container">
-
-  <ul class="w3-ul ">
-    <li><span class="w3-right">data</span></li>
-	<li><span class="w3-right">data</span></li>
-	<li><span class="w3-right">data</span></li>
-	<li>Thicc<span class="w3-right">data</span></li>
-	<li>Kalkulator zakupu na firmę<span class="w3-right">data</span></li>
-	
-    <li>Warsaw Bike number map  <span class="w3-right">data</span></li>
-    <li>Eve training<span class="w3-right">data</span></li>
-    <li>Large number guessing<span class="w3-right">data</span></li>
-  </ul>
- </div>
-
-<!-- End Page Content -->
-</div>
-
-<!-- Footer -->
-<footer class="w3-container w3-center w3-light-grey w3-center w3-bottom" >
-
-
-
-  <!-- Begin MailChimp Signup Form -->
-  <link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css">
-  <style type="text/css">
-  	#mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif;  width:300px;}
-  	/* Add your own MailChimp form style overrides in your site stylesheet or in this style block.
-  	   We recommend moving this block and the preceding CSS link to the HEAD of your HTML file. */
+  <style>
+    body,
+    h1 {
+      font-family: 'Raleway', Arial, sans-serif;
+    }
+    h1 {
+      letter-spacing: 6px;
+    }
+    .w3-row-padding img {
+      margin-bottom: 12px;
+    }
+    .fake-link {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .hid {
+      display: none;
+    }
+    /* div{ 
+    border:1px solid black;
+  } */
+    img {
+      float: left;
+      overflow: auto;
+      border-radius: 15%;
+    }
+    li {
+      clear: both;
+      /* border: solid 1px black; */
+    }
   </style>
-  <div id="mc_embed_signup">
-  <form action="//k.us15.list-manage.com/subscribe/post?u=b2457dc561f7d1558f0664ef9&amp;id=852decd3cf" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-      <div id="mc_embed_signup_scroll">
 
-  <div class="mc-field-group">
-  	<label for="mce-EMAIL">Put your Email -> </label>
-  	<input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
-  </div>
-  	<div id="mce-responses" class="clear">
-  		<div class="response" id="mce-error-response" style="display:none"></div>
-  		<div class="response" id="mce-success-response" style="display:none"></div>
-  	</div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-      <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_b2457dc561f7d1558f0664ef9_852decd3cf" tabindex="-1" value=""></div>
-      <div class="clear"><input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-49987634-4"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'UA-49987634-4');
+    </script>
+  </head>
+
+  <body>
+    <!-- Header -->
+    <div class=" w3-light-grey w3-center w3-opacity">
+      <h3 class="w3-bar-item w3-left w3-margin">Small Projects</h3>
+      <!-- <a href="#" class="w3-bar-item w3-button">Home</a> -->
+      <!-- <div class="w3-bar-item w3-button w3-light-grey">About me \/</div> -->
+    </div>
+    <!-- PAGE CONTENT -->
+    <div class="w3-content w3-padding-64" style="max-width:900px ">
+      <div class="w3-container">
+        <ul class="w3-ul ">
+          <li class="w3-padding">
+            <div class="w3-bar-item w3-padding-16">
+              <a href="https://addons.mozilla.org/pl/firefox/addon/black-sides/"
+                ><img class="w3-padding" src="blacksides.jpg" width="150px" />
+                BlackSides - Browser extention adding black side stripes to websites</a
+              >
+              <span class="w3-right" style="float:right"
+                >[JS] <a href="https://github.com/kjaku/black-sides">source</a></span>
+              <p class="opis w3-padding">
+                Firefox addon creating black vertical stripes to isolate reading
+                area for less eye strain
+              </p>
+              <!-- Rozszerzenie do przeglądarki Firefox, dzięki któremu można ustawić boczne czarne paski na stronach -->
+            </div>
+          </li>
+
+          <li class="w3-padding">
+              <div class="w3-bar-item w3-padding-16">
+                <a href="./nextbike/index.html"
+                  ><img
+                    class="w3-padding"
+                    src="nexbikeMap1.jpg"
+                    width="150px"
+                  />
+                  Better Verturillo bicycle map for Warsaw
+                </a>
+                <span class="w3-right" style="float:right"
+                  >[MapBox][JS][API] <a href="githu">source</a></span>
+                <p class="opis w3-padding">
+                  Only map that shows number of bikes right away
+                </p>
+                <!-- Jedyna mapa rowerów verturillo w Warszawie z liczbą rowerów widoczną od razu  -->
+              </div>
+          </li>
+
+          <li class="w3-padding">
+            <a href="./eye/index.html">
+              <img class="w3-padding" src="gabor.jpg" width="150px" alt=""/>
+            <div>
+              <div class="w3-bar-item w3-padding-16">
+                <a href="./eye/index.html">Eye training game
+                </a>: Spot the
+                Gabor's patch
+                <span class="w3-right" style="float:right">[JS] <a href="githu">source</a></span>
+                <p class="opis w3-padding">
+                  Exercise for sight training. Spot barely visible special Gabor's patch. 
+                  <!-- Gra do treningu wzroku. Znajdz i kliknij jak najszybciej ledwo widoczna specjalna plamke -->
+                </p>
+              </div>
+            </div>
+          </li>
+
+          <li class="w3-padding">
+            <div class="w3-bar-item w3-padding-16">
+              <a href="./my-app">
+                <img class="w3-padding" src="koszt.jpg" width="150px" alt="" />
+                Kalkulator zakupu na firmę
+              </a>
+              <span class="w3-right">[ReactJS] </span>
+                <a href="githu">source</a>
+              <p class="opis w3-padding">
+                Rozbijanie wpisanej kwoty zakupu na Vat i skladke na podatek dochodowy
+              </p>
+            </div>
+          </li>       
+          
+          <li class="w3-padding">
+            <div class="w3-bar-item w3-padding-16">
+              <a href="./CountingStars/index.html"
+                ><img class="w3-padding" src="stars.jpg" width="150px" alt="" />
+                Guess how many stars do you see</a> </span>
+              <span class="w3-right"
+                >[JS] <a href="https://github.com/kjaku/kjaku.github.io/blob/master/CountingStars/index.html">source</a></span>
+              <p class="opis w3-padding">
+                Can you correctly estimate number of occurences on the screen? Little game.
+              </p>
+            </div>
+          </li>
+
+          <li>
+            <a id="ideas" class="fake-link">Some ideas to spare</a
+            ><span class="w3-right">\/</span>
+          </li>
+
+          <div id="ideasList" class="hid">
+            Here are some ideas someone might find interesting to develop
+            <ul>
+              <li>
+                [App] During recording normal video you can toggle slow motion
+                for couple of seconds
+              </li>
+              <li>
+                [Service] Middleware between buying and payment transaction
+                system, which transforms part of actual payment to chosen
+                charity.
+              </li>
+              <li>
+                [Gear/App] Physical or software trackball for bigger phones
+              </li>
+              <li>
+                [Browser Extention?] "TL;DR" - Crowdsourcing text sumups of every
+                article or video added to webpage while viewing it
+              </li>
+              <li>
+                [App?] Wrap-up of information if something significant changed
+                in any installed app after auto update
+              </li>
+              <li>
+                [Neural Networks] Music style transfer (like Artistic style
+                transfer)
+              </li>
+              <li>
+                Phone keyboard app which also suggests synonims 
+              </li>
+            </ul>
+          </div>
+        </ul>
       </div>
-  </form>
-  </div>
-  <script type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script><script type='text/javascript'>(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script>
-  <!--End mc_embed_signup-->
-  <p class="w3-right ">Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank" >w3.css</a></p>
-</footer>
+    </div>
+    <!-- End Page Content -->
+    <!-- </div> -->
 
-</body>
+    <script>
+      var list = document.getElementById('ideasList');
+      document.getElementById('ideas').addEventListener('click', function(e) {
+        e.preventDefault();
+        list.classList.toggle('hid');
+      });
+    </script>
+  </body>
 </html>

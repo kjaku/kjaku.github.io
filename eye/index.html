@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<!-- TODO : auto level change, -->
+<html>
+<head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-49987634-4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-49987634-4');
+</script>
+
+
+	
+	<meta charset="utf-8">
+	<link rel="stylesheet" href=".\css\kropki.css">
+
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0, user-scalable=0"> 
+	<meta name="description" content="Train your eyes by finding Gabor patches.">
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.js"></script>
+	<title>Eye sight training.</title>
+</head>
+<body>
+<!-- Start your code here -->
+
+
+<div id="device" style="text-align: center; border:1px dotted black; color:green;"></div>
+<script type="text/javascript">
+  testExp = new RegExp('Android|webOS|iPhone|iPad|' +
+    		       'BlackBerry|Windows Phone|'  +
+    		       'Opera Mini|IEMobile|Mobile' , 
+    		      'i');
+  
+  if (testExp.test(navigator.userAgent))
+       console.log("a Mobile Device");
+  else
+       console.log("NOT a Mobile Device");
+
+     			 
+</script>
+
+
+<div class="flex">
+		<button onclick="plamkuj()">SKIP</button>
+		<!-- <button id="losuj"  onclick="loop()">New</button> -->
+		<button onclick="reset()">CLEAR STATS</button>
+		<button id="wykres">CHART</button>
+
+		<div>
+				<button  id="levelUp">HARDER</button>
+				<span id="levelL">%</span>
+				<button  id="levelDwn">EASIER</button>
+		</div>
+		<div>
+			Size:
+				<button class='arrow' onclick="gaborSize(10)" id="gaborBtnBig">&ensp; &#x2191;&ensp;</button>
+				<span id="gaborSize"> </span>
+				<button class='arrow' onclick="gaborSize(-10)" id="gaborBtnSmall">&ensp; &#x2193;&ensp;</button>
+		</div>
+		<button id="info">INFO</button>
+		<div>		
+			<div id="logo">K</div>
+
+		</div>
+</div>
+
+<div>		
+	<table>
+			<h3><td>Duration: </td><td><span id="zgad"></span></td></h3>
+				<tr><h3><td>Count: </td><td> <span id="ile"></span></td></h3></tr>
+				<tr><h3><td>Last 10 average: </td><td> <span id="avL">0.00</span> s </td></h3></tr>
+		</table>
+</div>
+
+<div>
+ <img id="plamka" src="gabor.png"></img>
+ <!-- <canvas id="canvas-dots" ></canvas> -->
+</div>
+
+<div id="canv"> 
+	<canvas id="chartJSContainer" ></canvas>
+</div>
+
+<p class="full-circle"></p>
+
+<!-- End your code here -->
+<script>
+var
+		stage,
+		stageCtx,
+		// stageWidth   = window.innerWidth-100,
+		// stageHeight  = window.innerHeight-100,
+		stageWidth   =  (window.innerWidth > 0) ? window.innerWidth : screen.width;
+
+		stageHeight  =  (window.innerHeight > 0) ? window.innerHeight : screen.height;
+
+		stageCenterX = stageWidth/2,
+		stageCenterY = stageHeight/2,
+		circleRadius = 3,
+		ile=0;
+		pozW=50,
+		pozH=50,
+		czasStart=undefined,
+		flag=false,
+		plamka,
+		opac=[]
+		// ,
+		// gaborHeight
+		;
+
+
+
+// function init() {
+			// stage = document.getElementById("canvas-dots");
+			// stageCtx = stage.getContext('2d');
+   //    stage.width = window.innerWidth-100;
+			// stage.height = window.innerHeight-500;
+			// plamka = document.getElementById("plamka");
+// }
+
+function randomNumber(min, max) {
+	return Math.floor(Math.random() * (max - min) + min);
+}
+
+// init();
+
+//==============================================================
+
+if (typeof(Storage) !== "undefined") {
+    // Code for localStorage/sessionStorage.
+} else {
+    // Sorry! No Web Storage support..
+		console.log('no storage');
+}
+var guesses,iles, count=[], proce, lv;
+
+if (localStorage.getItem('czas') !== null){
+	console.log(' get start');
+	 guesses =JSON.parse(localStorage.getItem("czas"));
+}else{
+	 guesses =[];
+}
+if (localStorage.getItem('ile bylo')){
+	console.log('get  iles');
+	 iles =JSON.parse(localStorage.getItem("ile bylo"));
+}else{
+	console.log('create  iles');
+	 iles =[];
+}
+if (localStorage.getItem('poziom')){
+	 lv =JSON.parse(localStorage.getItem("poziom"));
+	 setOpa(lv);
+	 document.getElementById("levelL").innerHTML =changeOpaToLevel(lv) +' %';
+
+}else{
+	 lv =0.8;
+}
+
+//==============================================================
+
+var guessInp = document.getElementById('guess');
+var procent = document.getElementById('proce');
+var zgadka = document.getElementById('zgad');
+var roznica = document.getElementById('roznica');
+
+//console.log(storedNames[1]);
+
+
+function plamkuj(){
+
+	 rotate(randomNumber(0,180));
+	 pozW=randomNumber(0,stageWidth-100);
+	 pozH=randomNumber(50,stageHeight-100);
+	// $('#plamka').css('transform',rotate(50deg) );
+	$('#plamka').hide();
+	$('#plamka').css('left',pozW +'px' );
+	$('#plamka').css('top',pozH + 'px');
+	$('#plamka').fadeIn(1000);
+	flag=false;
+}
+
+function go(){
+
+		console.log("start========");
+		var date1;
+		var date2 = new Date();
+		var diff;
+		if(czasStart){
+ 			 diff = date2 - czasStart; //milliseconds interval
+			// console.log( "czas "+ diff);
+		}
+		czasStart = new Date();
+
+		var sec = Math.floor((diff/1000) % 60);
+		var ms = diff -sec*1000;
+		var odstep =parseFloat(sec + '.' + ms);
+		var czasPomiedzy = odstep +' s';
+// 		var o
+	  ile++;
+    document.getElementById("ile").innerHTML =ile;
+	 	odstep = odstep || 0;
+	  guesses.push(odstep);
+		iles.push(ile);
+		var opa=$('#plamka').css("opacity");
+		opac.push(1/opa);
+
+		putStorage();
+
+	  wykres.update();
+// 		console.log(odstep);
+		level(1);
+	  if(odstep===0) /////////TUUUUUUUUU
+		  zgadka.innerHTML ="start";
+			else {
+				zgadka.innerHTML =czasPomiedzy;
+			}
+
+	plamkuj();
+	// guessInp.value = "";
+	movAv(guesses, 10);
+
+}
+
+ function rotate(degree) {
+	       // For webkit browsers: e.g. Chrome
+	            $('#plamka').css({ WebkitTransform: 'rotate(' + degree + 'deg)'});
+	       // For Mozilla browser: e.g. Firefox
+	            $('#plamka').css({ '-moz-transform': 'rotate(' + degree + 'deg)'});
+							// console.log('rotate '+ degree);
+}
+
+var i=0;
+var liczba=[];
+
+function movAv(data, steps){
+	var avSum=0;
+	for(var ind=data.length-1;ind>data.length-steps-1;ind--){
+		if(data[ind] !== undefined){
+			avSum+=data[ind];
+		}
+	}
+	var avr=Math.round(avSum/steps*100)/100;
+// 	console.log("movAv "+ avr);
+	document.getElementById("avL").innerHTML =avr;
+	return avr;
+}
+
+function level(ind){
+	var opa=$('#plamka').css("opacity");
+	opa=opa*ind;
+	if(opa>1){
+		opa=1;
+	}
+	if(opa<0.01){
+		opa=0.01;
+	}
+// 	 $('#plamka').css("opacity" ,opa );
+	setOpa(opa);
+  // opac.push(opa*10);
+// 	console.log(opa);
+  
+	document.getElementById("levelL").innerHTML =changeOpaToLevel(opa) +' %';
+
+	localStorage.setItem("poziom", JSON.stringify(opa));
+
+}
+function setOpa(num){
+	$('#plamka').css("opacity" ,num );
+}
+
+function changeOpaToLevel(opa){
+	var lv= Math.round((100-opa*100)*10)/10;
+	 return lv;
+}
+
+function putStorage() {
+	localStorage.setItem('localKey', 'localValue');
+	localStorage.getItem('localKey');
+	localStorage.setItem("czas", JSON.stringify(guesses));
+	localStorage.setItem("ile bylo", JSON.stringify(iles));
+	i=  JSON.parse(localStorage.getItem("ile bylo"));
+	i++;
+	count.push(i);
+// 	console.log('guesses ' + guesses);
+	localStorage.setItem("guess",i++);
+}
+
+function reset(){
+	localStorage.clear();
+	guesses.length=0;
+	iles.length =0;
+	count.length=0;
+// 	proce.length=0;
+	opac.length=0;
+	ile=0;
+	zgadka.innerHTML = '';
+	document.getElementById("levelL").innerHTML ='';
+	document.getElementById("ile").innerHTML ='';
+	document.getElementById("avL").innerHTML ='';
+	movAv(guesses, 1);
+
+}
+
+function gaborSize(px){
+	let size = document.getElementById('plamka')
+	aktSize= size.offsetHeight;
+	let newSize = aktSize +px;
+	size.style.height= newSize+'px'
+
+	// let rozmiar = $('#plamka')
+	// rozmiar.css('height','300px')
+}
+
+
+
+var ctx = document.getElementById('chartJSContainer').getContext('2d');
+//line chart data
+var opt = {
+		type: 'line',
+		tooltipTemplate: "<%= value %>",
+		showTooltips: true,
+		onAnimationComplete: function()
+		{
+			this.showTooltip(this.datasets[0].points, true);
+		},
+		tooltipEvents: [],//NIE DZIALAJA
+		data: {
+	    labels: iles,
+	    datasets: [
+		    {
+				borderColor: "rgba(138, 58, 58, 0.72)",  //dlaczego kolory nie dzialaja
+				strokeColor: "rgba(187, 76, 76, 1)",
+		        label: 'Czas',
+	      	    borderWidth: 2,
+					lineTension: 0.1,
+					yAxisID:'A',
+					data: guesses
+	    	},
+// 				{
+// 					borderColor: 'rgba(72, 59, 222, 0.49)',
+// 					strokeColor: 'rgba(26, 47, 134, 0.51)',
+// 					label: 'Poziom',
+// 					borderWidth: 3,
+// 					yAxisID: 'B',
+// 					data: opac
+// 				},
+
+// 				}
+			]
+		},
+		options: {
+    	  scales: {
+      	    yAxes: [{
+      	    	position: "left",
+        	  	"id": 'A',
+//         	  	type: 'logarithmic',  //jednostki glupawe
+//         	  	logarithmic: true,
+      	    	ticks: {
+//             		min: 0,
+            		max: 10,
+//             		stepSize: 2
+            	}
+
+      		}]
+    	  }
+  		}
+
+};
+
+
+//var latestLb= options.data.labels[5];
+var wykres = new Chart(ctx, opt);
+
+$(document).ready(function(){
+		jQuery('#losuj').click(function(){
+	  	$(this).data('clicked', true);
+		});
+		$('#chartJSContainer').hide();
+
+    $("#wykres").click(function(){
+        $("#chartJSContainer").toggle();
+				$("#wykres").toggleClass("toggled");
+    });
+		$(':checkbox').change(function() {
+			$('.twinkling').toggle();
+		});
+		$('#plamka').mousedown(function(){
+			go();
+			// loop();
+		});
+
+		 $("#levelUp").click(function(){
+        	level(3/4);
+    	});
+		$("#levelDwn").click(function(){
+        	level(4/3);
+    	});
+});
+
+
+ //  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+ //  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();
+	// a=s.createElement(o),
+ //  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+ //  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ //  ga('create', 'UA-49987634-3', 'auto');
+ //  ga('send', 'pageview');
+
+</script>
+</body>
