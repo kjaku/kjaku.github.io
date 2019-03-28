@@ -1,5 +1,5 @@
-<!DOCTYPE html>
 <!-- TODO : auto level change, -->
+
 <html>
 <head>
 
@@ -14,14 +14,20 @@
 </script>
 
 
-	
+
 	<meta charset="utf-8">
 	<link rel="stylesheet" href=".\css\kropki.css">
 
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0, user-scalable=0"> 
 	<meta name="description" content="Train your eyes by finding Gabor patches.">
-	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.js"></script>
 	<title>Eye sight training.</title>
 </head>
@@ -44,37 +50,45 @@
      			 
 </script>
 
+<div >
+	<div>
+		<button class="menu"><span class="no-wrap">. . .</span></button>
+	</div>
 
-<div class="flex">
+	<div class="flex">
+
 		<button onclick="plamkuj()">SKIP</button>
 		<!-- <button id="losuj"  onclick="loop()">New</button> -->
 		<button onclick="reset()">CLEAR STATS</button>
-		<button id="wykres">CHART</button>
-
-		<div>
-				<button  id="levelUp">HARDER</button>
-				<span id="levelL">%</span>
-				<button  id="levelDwn">EASIER</button>
+		<div>Opacity: <span id="levelL">%</span></div>
+		<div class="no-wrap">
+			<button  id="levelUp">HARDER</button>
+			<button  id="levelDwn">EASIER</button><br>
 		</div>
-		<div>
-			Size:
-				<button class='arrow' onclick="gaborSize(10)" id="gaborBtnBig">&ensp; &#x2191;&ensp;</button>
-				<span id="gaborSize"> </span>
-				<button class='arrow' onclick="gaborSize(-10)" id="gaborBtnSmall">&ensp; &#x2193;&ensp;</button>
+		
+		<span>Size:</span>
+		<span class="no-wrap">
+			<button class='arrow' onclick="gaborSize(10)" id="gaborBtnBig">&ensp; &#x2191;&ensp;</button>
+			<span id="gaborSize"> </span>
+			<button class='arrow' onclick="gaborSize(-10)" id="gaborBtnSmall">&ensp; &#x2193;&ensp;</button>
+		</span>
+			<button id="wykres">CHART</button>
+			<button id="info">INFO</button>
+			<div id="logo"><a href="../" style="text-decoration: none">K</a></div>
+			
 		</div>
-		<button id="info">INFO</button>
-		<div>		
-			<div id="logo">K</div>
+	</div>
 
-		</div>
-</div>
 
-<div>		
-	<table>
-			<h3><td>Duration: </td><td><span id="zgad"></span></td></h3>
-				<tr><h3><td>Count: </td><td> <span id="ile"></span></td></h3></tr>
-				<tr><h3><td>Last 10 average: </td><td> <span id="avL">0.00</span> s </td></h3></tr>
-		</table>
+<div class="hud">		
+	
+			<div>Duration </div>
+			<div class="dash" id="zgad">t.tt</div>
+			<div>Last 10 average  </div>
+			<div class="dash" id="avL">0.00</div> 
+			<div>Count </div>
+			<div class="dash" id="ile">N</div>
+
 </div>
 
 <div>
@@ -90,6 +104,7 @@
 
 <!-- End your code here -->
 <script>
+	/*jshint esversion: 6 */ 
 var
 		stage,
 		stageCtx,
@@ -108,10 +123,7 @@ var
 		czasStart=undefined,
 		flag=false,
 		plamka,
-		opac=[]
-		// ,
-		// gaborHeight
-		;
+		opac=[];
 
 
 
@@ -199,7 +211,9 @@ function go(){
 		var sec = Math.floor((diff/1000) % 60);
 		var ms = diff -sec*1000;
 		var odstep =parseFloat(sec + '.' + ms);
-		var czasPomiedzy = odstep +' s';
+	  let czas=Math.round(odstep*10)/10;
+
+		var czasPomiedzy = czas +' s';
 // 		var o
 	  ile++;
     document.getElementById("ile").innerHTML =ile;
@@ -215,7 +229,7 @@ function go(){
 // 		console.log(odstep);
 		level(1);
 	  if(odstep===0) /////////TUUUUUUUUU
-		  zgadka.innerHTML ="start";
+		  zgadka.innerHTML ="";
 			else {
 				zgadka.innerHTML =czasPomiedzy;
 			}
@@ -244,9 +258,10 @@ function movAv(data, steps){
 			avSum+=data[ind];
 		}
 	}
-	var avr=Math.round(avSum/steps*100)/100;
+	var avr=Math.round(avSum/steps*10)/10;
+	let srednia = avr +' s';
 // 	console.log("movAv "+ avr);
-	document.getElementById("avL").innerHTML =avr;
+	document.getElementById("avL").innerHTML =srednia;
 	return avr;
 }
 
@@ -299,17 +314,17 @@ function reset(){
 	opac.length=0;
 	ile=0;
 	zgadka.innerHTML = '';
+	movAv(guesses, 1);
 	document.getElementById("levelL").innerHTML ='';
 	document.getElementById("ile").innerHTML ='';
 	document.getElementById("avL").innerHTML ='';
-	movAv(guesses, 1);
 
 }
 
 function gaborSize(px){
 	let size = document.getElementById('plamka')
-	aktSize= size.offsetHeight;
-	let newSize = aktSize +px;
+	aktSize= size.offsetHeight
+	let newSize = aktSize +px
 	size.style.height= newSize+'px'
 
 	// let rozmiar = $('#plamka')
@@ -377,7 +392,7 @@ var opt = {
 var wykres = new Chart(ctx, opt);
 
 $(document).ready(function(){
-		jQuery('#losuj').click(function(){
+	jQuery('#losuj').click(function(){
 	  	$(this).data('clicked', true);
 		});
 		$('#chartJSContainer').hide();
@@ -400,6 +415,10 @@ $(document).ready(function(){
 		$("#levelDwn").click(function(){
         	level(4/3);
     	});
+		$('.menu').click(function(){
+					$('.flex').toggle();
+					// console.log("menu");
+		});
 });
 
 
@@ -411,6 +430,19 @@ $(document).ready(function(){
 
  //  ga('create', 'UA-49987634-3', 'auto');
  //  ga('send', 'pageview');
+
+
+ // ServiceWorker is a progressive technology. Ignore unsupported browsers
+if ('serviceWorker' in navigator) {
+  console.log('CLIENT: service worker registration in progress.');
+  navigator.serviceWorker.register('./service-worker.js').then(function() {
+    console.log('CLIENT: service worker registration complete.');
+  }, function() {
+    console.log('CLIENT: service worker registration failure.');
+  });
+} else {
+  console.log('CLIENT: service worker is not supported.');
+}
 
 </script>
 </body>
