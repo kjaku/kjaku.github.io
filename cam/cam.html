@@ -1,0 +1,600 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Capture</title>
+    <style>
+        body {
+            background-color: #0a0a1a;
+            color: #e0e0ff;
+            font-family: 'Roboto', 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-size: 40px 40px;
+            animation: moveBackground 5s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 40px 40px;
+            }
+        }
+
+        button {
+            color: black;
+            margin-right: 2px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:last-child {
+            margin-right: 0;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        button:not(:disabled):hover {
+            filter: brightness(1.1);
+        }
+
+        #takePhotoButton {
+            background-color: #00c8ff;
+        }
+
+        #photoGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 30px;
+            width: 100%;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.2);
+        }
+
+        #previewDiv {
+            width: 600px;
+            height: 450px;
+            overflow: hidden;
+            position: relative;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 200, 255, 0.3);
+            margin: 30px 0;
+            border: 2px solid rgba(0, 200, 255, 0.5);
+        }
+
+        #camera {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #lightnessDisplay {
+            margin-top: 20px;
+            font-size: 16px;
+            background-color: rgba(0, 200, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0, 200, 255, 0.2);
+        }
+
+        .control-button {
+            margin-top: 10px;
+        }
+
+        #togglePreviewButton {
+            background-color: #00c8ff;
+        }
+
+        #stopButton {
+            background-color: #ff6464;
+        }
+
+        #resumeButton {
+            background-color: #64ff64;
+        }
+
+        #photo {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 200, 255, 0.3);
+            margin-top: 30px;
+            border: 2px solid rgba(0, 200, 255, 0.5);
+        }
+
+        #fpsCounter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 200, 255, 0.2);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 14px;
+            box-shadow: 0 0 15px rgba(0, 200, 255, 0.3);
+            border: 2px solid rgba(0, 200, 255, 0.5);
+        }
+
+        #saveButton {
+            background-color: #00c8ff;
+        }
+
+        #sideMenu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: rgba(10, 10, 26, 0.9);
+            transition: right 0.3s ease;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        #sideMenu.open {
+            right: 0;
+        }
+
+        #toggleSideMenuButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: #00c8ff;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="btn btn-primary" id="start-camera"><i class="fas fa-camera"></i> Start Camera</button>
+
+    <div id="previewDiv">
+        <video id="camera"></video>
+    </div>
+    <div class="button-container">
+        <button id="takePhotoButton">Take Photo</button>
+        <button id="togglePreviewButton" class="control-button">Hide Preview</button>
+        <button id="stopButton" class="control-button">Stop Capture</button>
+        <button id="resumeButton" class="control-button" disabled>Resume Capture</button>
+        <button id="saveButton" class="control-button" disabled>Save Selected Photo</button>
+        <button id="toggleChartButton" class="control-button">Show Lightness Chart</button>
+        <button id="autoCaptureButton" class="control-button">Start Auto Capture</button>
+        <button id="toggleCameraButton" class="control-button">Switch Camera</button>
+    </div>
+    <div id="photoGrid"></div>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <div id="fpsCounter"></div>
+
+    <div id="chartContainer" style="display: none; width: 100%; height: 300px;">
+        <canvas id="lightnessChart"></canvas>
+    </div>
+
+    <div id="lightnessDisplay"></div>
+    <span id="maxLightnessDisplay" style="color: #fff; margin-left: 10px;"></span>
+    <div id="lightnessThresholdContainer" style="text-align: center; margin-top: 20px;">
+        <label for="lightnessThreshold" style="color: #fff; margin-right: 10px;">Lightness Threshold:</label>
+        <input type="range" id="lightnessThreshold" min="0" max="255" value="100" style="width: 200px;">
+        <span id="thresholdValue" style="color: #fff; margin-left: 10px;">100</span>
+    </div>
+
+    <div id="pixelSamplingContainer" style="text-align: center; margin-top: 20px;">
+        <label for="pixelSampling" style="color: #fff; margin-right: 10px;">Pixel Sampling (1/n):</label>
+        <input type="number" id="pixelSampling" min="1" max="10" value="1" style="width: 50px;">
+    </div>
+
+    <div id="autoCaptureIntervalContainer" style="text-align: center; margin-top: 20px;">
+        <label for="autoCaptureInterval" style="color: #fff; margin-right: 10px;">Auto Capture cooldown
+            (seconds):</label>
+        <input type="number" id="autoCaptureInterval" min="1" max="60" value="5" style="width: 50px;">
+    </div>
+
+    <div id="numPhotosContainer" style="text-align: center; margin-top: 20px;">
+        <label for="numPhotos" style="color: #fff; margin-right: 10px;">Number of Photos to Take:</label>
+        <input type="number" id="numPhotos" min="1" value="1" style="width: 50px;">
+        <label for="photoDelay" style="color: #fff; margin-left: 10px;">Delay Between Photos (ms):</label>
+        <input type="number" id="photoDelay" min="0" value="50" step="10" style="width: 50px;">
+    </div>
+
+    <button id="toggleSideMenuButton" class="control-button">Camera Details</button>
+    <div id="cameraPermissionStatus" style="position: fixed; top: 10px; left: 10px; color: #fff; font-weight: bold;">
+    </div>
+    <div id="sideMenu"
+        style="display: none; position: fixed; right: 0; top: 0; width: 300px; height: 100%; background-color: rgba(10, 10, 26, 0.9); padding: 20px; overflow-y: auto;">
+        <h3>Camera Details</h3>
+        <div id="cameraInfo"></div>
+    </div>
+
+    <div id="errorContainer"
+        style="position: fixed; bottom: 0; left: 0; width: 100%; background-color: rgba(255, 0, 0, 0.8); color: white; padding: 10px; display: none;">
+    </div>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const takePhotoButton = document.getElementById('takePhotoButton');
+            const video = document.getElementById('camera');
+            const canvas = document.getElementById('canvas');
+            const previewDiv = document.getElementById('previewDiv');
+            const lightnessDisplayDiv = document.getElementById('lightnessDisplay');
+            const maxLightnessDisplaySpan = document.getElementById('maxLightnessDisplay');
+            const togglePreviewButton = document.getElementById('togglePreviewButton');
+            const stopButton = document.getElementById('stopButton');
+            const resumeButton = document.getElementById('resumeButton');
+            const saveButton = document.getElementById('saveButton');
+            const photoGrid = document.getElementById('photoGrid');
+            const fpsCounter = document.getElementById('fpsCounter');
+            const lightnessThreshold = document.getElementById('lightnessThreshold');
+            const thresholdValue = document.getElementById('thresholdValue');
+            const autoCaptureButton = document.getElementById('autoCaptureButton');
+            const pixelSampling = document.getElementById('pixelSampling');
+            const autoCaptureIntervalInput = document.getElementById('autoCaptureInterval');
+            const toggleSideMenuButton = document.getElementById('toggleSideMenuButton');
+            const sideMenu = document.getElementById('sideMenu');
+            const cameraPermissionStatus = document.getElementById('cameraPermissionStatus');
+            const camera_button = document.querySelector("#start-camera");
+            const toggleCameraButton = document.getElementById('toggleCameraButton');
+            const errorContainer = document.getElementById('errorContainer');
+            const numPhotosInput = document.getElementById('numPhotos');
+            const photoDelayInput = document.getElementById('photoDelay');
+
+            let selectedPhoto = null;
+            let isAutoCapturing = false;
+            let lastAutoCaptureTime = 0;
+            let lightnessHistory = [];
+            let maxLightness = 0;
+            let currentCameraIndex = 0;
+
+            // Request camera permissions
+            navigator.permissions.query({ name: 'camera' })
+                .then(permissionStatus => {
+                    console.log('Camera permission status:', permissionStatus.state);
+                    cameraPermissionStatus.textContent = `Camera Permission: ${permissionStatus.state}`;
+                    if (permissionStatus.state === 'granted') {
+                        // Camera access granted, proceed with video streaming
+                        video.play();
+                    } else {
+                        // Camera access denied, handle the error
+                        console.error('Camera access denied');
+                        cameraPermissionStatus.textContent = 'Camera access denied. Please allow camera access to use this feature.';
+                        showError('Camera access denied. Please allow camera access to use this feature.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking camera permissions:', error);
+                    cameraPermissionStatus.textContent = `Error checking camera permissions: ${error}`;
+                    showError(`Error checking camera permissions: ${error}`);
+                });
+
+            async function startCamera() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCameraIndex === 0 ? 'user' : 'environment' } });
+                    video.srcObject = stream;
+                    // Don't start playing the video immediately
+
+                    // Get camera info and settings
+                    const track = stream.getVideoTracks()[0];
+                    const capabilities = track.getCapabilities();
+                    const settings = track.getSettings();
+
+                    console.log('Camera capabilities:', capabilities);
+                    console.log('Current camera settings:', settings);
+
+                    // Display camera info in the side menu
+                    const cameraInfo = document.getElementById('cameraInfo');
+                    cameraInfo.innerHTML = `
+                        <p>Camera: ${track.label}</p>
+                        <p>Resolution: ${settings.width}x${settings.height}</p>
+                        <p>Frame rate: ${settings.frameRate}</p>
+                    `;
+
+
+                    // Set initial button states
+                    stopButton.disabled = true;
+                    resumeButton.disabled = false;
+                    stopButton.style.opacity = '0.5';
+                    resumeButton.style.opacity = '1';
+                } catch (error) {
+                    console.error('Error accessing camera:', error);
+                    cameraPermissionStatus.textContent = `Error accessing camera: ${error}`;
+                    showError(`Error accessing camera: ${error}`);
+                }
+            }
+
+
+            // Toggle side menu visibility
+            toggleSideMenuButton.addEventListener('click', () => {
+                sideMenu.style.display = sideMenu.style.display === 'none' ? 'block' : 'none';
+            });
+
+
+            camera_button.addEventListener('click', startCamera);
+            toggleCameraButton.addEventListener('click', () => {
+                currentCameraIndex = (currentCameraIndex + 1) % 2;
+                startCamera();
+            });
+            // window.addEventListener('resize', updateGridColumns);
+
+            function takePhoto() {
+                const numPhotos = parseInt(numPhotosInput.value);
+                const photoDelay = parseInt(photoDelayInput.value);
+                for (let i = 0; i < numPhotos; i++) {
+                    setTimeout(() => {
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        canvas.getContext('2d').drawImage(video, 0, 0);
+                        const photoDataUrl = canvas.toDataURL('image/jpeg');
+
+                        // Create a new image element for the taken photo
+                        const newPhoto = document.createElement('img');
+                        newPhoto.src = photoDataUrl;
+                        newPhoto.style.width = '100%';
+                        newPhoto.style.height = '100%';
+                        newPhoto.style.objectFit = 'cover';
+                        newPhoto.style.borderRadius = '10px';
+                        newPhoto.style.boxShadow = '0 0 10px rgba(0, 200, 255, 0.3)';
+                        newPhoto.style.transition = 'transform 0.3s ease';
+
+                        // Add datetime property to the photo
+                        const currentDateTime = new Date();
+                        newPhoto.dataset.datetime = currentDateTime.toISOString();
+
+                        // Add hover effect
+                        newPhoto.addEventListener('mouseover', () => {
+                            newPhoto.style.transform = 'scale(1.05)';
+                        });
+                        newPhoto.addEventListener('mouseout', () => {
+                            newPhoto.style.transform = 'scale(1)';
+                        });
+
+                        // Add click event to select photo
+                        newPhoto.addEventListener('click', () => {
+                            if (selectedPhoto) {
+                                selectedPhoto.style.border = 'none';
+                            }
+                            selectedPhoto = newPhoto;
+                            selectedPhoto.style.border = '3px solid #00c8ff';
+                            saveButton.disabled = false;
+                        });
+
+                        // Append the new photo to the grid
+                        photoGrid.insertBefore(newPhoto, photoGrid.firstChild);
+                    }, i * photoDelay);
+                }
+            }
+
+            takePhotoButton.addEventListener('click', takePhoto);
+
+            // Function to calculate and display average lightness
+            function calculateAndDisplayLightness() {
+                if (!video.srcObject) {
+                    lightnessDisplayDiv.textContent = 'Camera not accessible';
+                    showError('Camera not accessible');
+                    return;
+                }
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                let totalLightness = 0;
+                const samplingRate = parseInt(pixelSampling.value);
+                console.log('turbo: | samplingRate:', samplingRate)
+
+                // const startTime = performance.now();
+
+                for (let i = 0; i < data.length; i += 4 * samplingRate) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const lightness = (Math.max(r, g, b) + Math.min(r, g, b)) / 2;
+                    totalLightness += lightness;
+                }
+
+                // const endTime = performance.now();
+                // console.log(`Lightness calculation took ${endTime - startTime} milliseconds`); // 1-3 ms
+                console.log(`Lightness calculation took  milliseconds`); // 1-3 ms
+
+                const averageLightness = totalLightness / (data.length / (4 * samplingRate));
+                lightnessDisplayDiv.textContent = `Average lightness: ${averageLightness.toFixed(2)} (0-255)`;
+                lightnessDisplayDiv.style.background = `linear-gradient(90deg, #00c8ff ${averageLightness / 2.55}%, transparent ${averageLightness / 2.55}%)`;
+
+                // Update lightness history
+                lightnessHistory.push(averageLightness);
+                if (lightnessHistory.length > 100) { // Keep last 10 seconds (100 * 100ms)
+                    lightnessHistory.shift();
+                }
+
+                // Update max lightness
+                maxLightness = Math.max(...lightnessHistory);
+                maxLightnessDisplaySpan.textContent = `Max lightness (10s): ${maxLightness.toFixed(2)}`;
+
+                // Check if threshold is below average lightness
+                if (parseInt(thresholdValue.textContent) < averageLightness) {
+                    previewDiv.style.outline = '4px solid #ff6464';
+                } else {
+                    previewDiv.style.outline = 'none';
+                }
+
+                // Auto capture logic
+                if (isAutoCapturing && averageLightness > parseInt(thresholdValue.textContent)) {
+                    const currentTime = Date.now();
+                    const cooldownTime = parseInt(autoCaptureIntervalInput.value) * 1000; // Convert seconds to milliseconds
+                    if (currentTime - lastAutoCaptureTime >= cooldownTime) {
+                        takePhoto();
+                        lastAutoCaptureTime = currentTime;
+                    }
+                }
+            }
+
+            // Update lightness value every 100ms
+            // let captureInterval = setInterval(calculateAndDisplayLightness, 100);
+            let captureInterval = null;//setInterval(calculateAndDisplayLightness, 100);
+            // clearInterval(captureInterval);
+
+            // Function to toggle preview visibility
+            function togglePreview() {
+                if (previewDiv.style.display === 'none') {
+                    previewDiv.style.display = 'block';
+                    togglePreviewButton.textContent = 'Hide Preview';
+                    togglePreviewButton.style.backgroundColor = 'rgba(0, 200, 255, 0.2)';
+                } else {
+                    previewDiv.style.display = 'none';
+                    togglePreviewButton.textContent = 'Show Preview';
+                    togglePreviewButton.style.backgroundColor = 'rgba(255, 100, 100, 0.2)';
+                }
+            }
+
+            // Add click event listener to the toggle button
+            togglePreviewButton.addEventListener('click', togglePreview);
+
+            // Add event listener for threshold change
+            lightnessThreshold.addEventListener('input', function () {
+                thresholdValue.textContent = this.value;
+                calculateAndDisplayLightness();
+            });
+
+            // Function to stop capturing
+            function stopCapture() {
+                clearInterval(captureInterval);
+                const allIntervals = window.setInterval(() => { }, 0); // Get all intervals
+                for (let i = 0; i < allIntervals; i++) {
+                    clearInterval(i);
+                }
+                video.pause();
+
+                stopButton.disabled = true;
+                resumeButton.disabled = false;
+                stopButton.style.opacity = '0.5';
+                resumeButton.style.opacity = '1';
+            }
+
+            // Function to resume capturing
+            function resumeCapture() {
+                video.play();
+                captureInterval = setInterval(calculateAndDisplayLightness, 100);
+                stopButton.disabled = false;
+                resumeButton.disabled = true;
+                stopButton.style.opacity = '1';
+                resumeButton.style.opacity = '0.5';
+            }
+
+            // Add click event listeners to the buttons
+            stopButton.addEventListener('click', stopCapture);
+            resumeButton.addEventListener('click', resumeCapture);
+
+            // Function to save selected photo
+            function saveSelectedPhoto() {
+                if (selectedPhoto) {
+                    const link = document.createElement('a');
+                    link.href = selectedPhoto.src;
+                    const photoDateTime = new Date(selectedPhoto.dataset.datetime);
+                    const year = photoDateTime.getFullYear();
+                    const month = String(photoDateTime.getMonth() + 1).padStart(2, '0');
+                    const day = String(photoDateTime.getDate()).padStart(2, '0');
+                    const fileName = `${year}${month}${day}_web_cam.jpg`;
+                    link.download = fileName;
+                    link.click();
+                } else {
+                    showError('No photo selected');
+                }
+            }
+
+            // Add click event listener to the save button
+            saveButton.addEventListener('click', saveSelectedPhoto);
+
+            // Add hover effects to buttons
+            const buttons = [takePhotoButton, togglePreviewButton, stopButton, resumeButton, saveButton, autoCaptureButton];
+            buttons.forEach(button => {
+                button.addEventListener('mouseover', () => {
+                    button.style.transform = 'scale(1.05)';
+                    button.style.boxShadow = '0 0 15px rgba(0, 200, 255, 0.5)';
+                });
+                button.addEventListener('mouseout', () => {
+                    button.style.transform = 'scale(1)';
+                    button.style.boxShadow = 'none';
+                });
+            });
+
+            let frameCount = 0;
+            let lastTime = performance.now();
+            let fps = 0;
+
+            // Auto capture button functionality
+            autoCaptureButton.addEventListener('click', () => {
+                isAutoCapturing = !isAutoCapturing;
+                if (isAutoCapturing) {
+                    autoCaptureButton.textContent = 'Stop Auto Capture';
+                    autoCaptureButton.style.backgroundColor = 'rgba(255, 100, 100, 0.2)';
+                } else {
+                    autoCaptureButton.textContent = 'Start Auto Capture';
+                    autoCaptureButton.style.backgroundColor = 'rgba(100, 255, 100, 0.2)';
+                }
+            });
+
+            function captureAndAnalyze() {
+                calculateAndDisplayLightness();
+                // requestAnimationFrame(captureAndAnalyze);
+            }
+
+            function showError(message) {
+                errorContainer.textContent = message;
+                errorContainer.style.display = 'block';
+            }
+
+            // captureAndAnalyze();
+        });
+
+
+        /* todo: 
+        chart of lightness over time
+    
+        */
+
+        // if (typeof console != "undefined")
+        //     if (typeof console.log != 'undefined')
+        //         console.olog = console.log;
+        //     else
+        //         console.olog = function () { };
+
+        // console.log = function (message) {
+        //     console.olog(message);
+        //     document.getElementById('debugDiv').innerHTML += ('<p>' + message + '</p>');
+        // };
+        // console.error = console.debug = console.info = console.log
+
+    </script>
+</body>
+
+</html>
