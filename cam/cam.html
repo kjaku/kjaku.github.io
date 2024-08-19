@@ -30,7 +30,7 @@
         button {
             color: black;
             margin-right: 2px;
-            padding: 10px 20px;
+            padding: 5px 10px;
             border: none;
             border-radius: 5px;
             font-size: 14px;
@@ -68,8 +68,8 @@
         }
 
         #previewDiv {
-            width: 600px;
-            height: 450px;
+            width: 100%;
+            height: 30%;
             overflow: hidden;
             position: relative;
             border-radius: 20px;
@@ -90,11 +90,11 @@
         }
 
         #lightnessDisplay {
-            margin-top: 20px;
+            /* margin-top: 20px; */
             font-size: 16px;
             background-color: rgba(0, 200, 255, 0.1);
-            padding: 10px 20px;
-            border-radius: 15px;
+            /* padding: 10px 20px; */
+            /* border-radius: 15px; */
             box-shadow: 0 0 10px rgba(0, 200, 255, 0.2);
         }
 
@@ -183,20 +183,19 @@
     <div class="button-container">
         <button id="takePhotoButton">Take Photo</button>
         <button id="togglePreviewButton" class="control-button">Hide Preview</button>
-        <button id="stopButton" class="control-button">Stop Capture</button>
-        <button id="resumeButton" class="control-button" disabled>Resume Capture</button>
-        <button id="saveButton" class="control-button" disabled>Save Selected Photo</button>
-        <button id="toggleChartButton" class="control-button">Show Lightness Chart</button>
+        <button id="stopButton" class="control-button">Stop</button>
+        <button id="resumeButton" class="control-button" disabled>Resume</button>
+        <button id="saveButton" class="control-button" disabled>Save Selected</button>
+        <!-- <button id="toggleChartButton" class="control-button">Show Lightness Chart</button> -->
         <button id="autoCaptureButton" class="control-button">Start Auto Capture</button>
         <button id="toggleCameraButton" class="control-button">Switch Camera</button>
     </div>
-    <div id="photoGrid"></div>
     <canvas id="canvas" style="display: none;"></canvas>
     <div id="fpsCounter"></div>
 
-    <div id="chartContainer" style="display: none; width: 100%; height: 300px;">
+    <!-- <div id="chartContainer" style="display: none; width: 100%; height: 300px;">
         <canvas id="lightnessChart"></canvas>
-    </div>
+    </div> -->
 
     <div id="lightnessDisplay"></div>
     <span id="maxLightnessDisplay" style="color: #fff; margin-left: 10px;"></span>
@@ -205,6 +204,8 @@
         <input type="range" id="lightnessThreshold" min="0" max="255" value="100" style="width: 200px;">
         <span id="thresholdValue" style="color: #fff; margin-left: 10px;">100</span>
     </div>
+
+    <div id="photoGrid"></div>
 
     <div id="pixelSamplingContainer" style="text-align: center; margin-top: 20px;">
         <label for="pixelSampling" style="color: #fff; margin-right: 10px;">Pixel Sampling (1/n):</label>

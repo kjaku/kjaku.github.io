@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess</title>
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            width: 400px;
+            height: 400px;
+            border: 1px solid black;
+        }
+
+        .square {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .light {
+            background-color: #f0d9b5;
+        }
+
+        .dark {
+            background-color: #b58863;
+        }
+    </style>
+</head>
+<body>
+    <div class="board"></div>
+    <textarea id="moveInput" placeholder="Paste your chess moves here"></textarea>
+    <button id="prevMove">Previous Move</button>
+    <button id="nextMove">Next Move</button>
+
+    <script>
+        const board = document.querySelector('.board');
+        const moveInput = document.getElementById('moveInput');
+        const prevMoveBtn = document.getElementById('prevMove');
+        const nextMoveBtn = document.getElementById('nextMove');
+        const squares = document.querySelectorAll('.square');
+        let currentPosition = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+        let moveHistory = [];
+
+        // Create the chessboard
+        for (let i = 0; i < 64; i++) {
+            const square = document.createElement('div');
+            square.classList.add('square');
+            if ((i + Math.floor(i / 8)) % 2 === 0) {
+                square.classList.add('light');
+            } else {
+                square.classList.add('dark');
+            }
+            board.appendChild(square);
+        }
+
+        // Update the board with the current position
+        function updateBoard(position) {
+            for (let i = 0; i < squares.length; i++) {
+                squares[i].textContent = position[i] || '';
+            }
+        }
+
+        // Handle move input
+        moveInput.addEventListener('input', () => {
+            const moves = moveInput.value.split(' ');
+            currentPosition = moves.reduce((position, move) => {
+                // Implement move logic here
+                return position;
+            }, 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR');
+            updateBoard(currentPosition);
+        });
+
+        // Add event listeners for move buttons
+        // (Implementation left as an exercise for the reader)
+    </script>
+</body>
+</html>
